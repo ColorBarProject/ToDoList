@@ -4,6 +4,7 @@ body {
 
 .container {
     background-color: whitesmoke;
+    min-width: 245px;
     min-height: 100vh;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
     position: relative;
