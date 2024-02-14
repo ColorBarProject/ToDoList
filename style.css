@@ -10,14 +10,17 @@ body {
     position: relative;
 }
 
-.task-area {
-    margin-top: 12px;
+.task-area {  
     border: 2px solid lightgray;
+    position: relative;
+
 }
+
 .task-tabs {
     display: flex;
     border-bottom: 2px solid lightgray;
     position: relative;
+    
 }
 
 .task-tabs div {
@@ -39,4 +42,37 @@ body {
     justify-content: space-between;
     padding: 1em;
     border-bottom: 1px solid lightgray;
+    flex-grow: 1;
+}
+
+.task-done {
+    display: flex;
+    text-decoration: line-through;
+    background-color: gray;
+    justify-content: space-between;
+    padding: 1em;
+    flex-grow: 1;
+    border-bottom: 1px solid lightgray;
+}
+
+.button-box {
+    display: flex;
+}
+
+#done-button img{
+    display: block;
+    height: 50px;  
+    width: 50px;
+}
+
+#undone-button img{    
+    display: block;
+    height: 50px;  
+    width: 50px;
+}
+
+#trash-box img{
+    display: block;
+    height: 50px;  
+    width: 50px;
 }
