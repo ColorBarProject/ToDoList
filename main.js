@@ -68,6 +68,10 @@ function viewTask() {
   if (mode === "all") {
     list = taskList;
     console.log("mode", mode);
+    if (list.length==0) {
+      taskAreaClear();
+      return;
+    }
   } else {
     list = filterList;
     console.log("list", list.length);  
@@ -128,7 +132,7 @@ function genRandomID() {
 function toTrash(id) {
   for (let i = 0; i < taskList.length; i++) {    
     if (taskList[i].id == id) {
-      taskList[i].inTrash = !taskList[i].inTrash;
+      taskList[i].inTrash = !taskList[i].inTrash;  // 인쓰래쉬를 트루/펄스 전환
       trashList.push(taskList[i]) ;   // 휴지통 누르면 휴지통리스트로 옮기고 태스크 리스트에서 제거
       taskList.splice(i, 1);
       filterList = filterList.filter(task => task.id !== id);
@@ -142,9 +146,10 @@ function revivTrash(id) {
   for (let i = 0; i < trashList.length; i++) {    
     if (trashList[i].id == id) {
       trashList[i].inTrash = !trashList[i].inTrash;
-      taskList.push(trashList[i]) ;   // 휴지통 누르면 휴지통리스트로 옮기고 태스크 리스트에서 제거
+      taskList.push(trashList[i]) ;   // 리바이브 누르면 태스크리스트로 옮기고 휴지통 리스트에서 제거
       trashList.splice(i, 1);
       filterList = filterList.filter(task => task.id !== id);
+      console.log(taskList);
       break;
     }
   }
