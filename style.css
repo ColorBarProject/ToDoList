@@ -10,6 +10,10 @@ body {
     position: relative;
 }
 
+.task-input {
+ 
+    padding-left: 1em;
+}
 .task-area {  
     border: 2px solid lightgray;
     position: relative;

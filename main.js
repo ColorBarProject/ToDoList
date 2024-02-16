@@ -9,7 +9,6 @@
 // 탭을 이용해 아이템을을 상태별로(완료, 미완료 등등) 나누어서 볼 수 있다
 // 모바일에서도 확인 가능한 반응형 웹
 
-
 /// 휴지통 복원 아이템, 비우기 아이템
 /// 검색은 내일 작업
 
@@ -19,15 +18,24 @@
 ////메모리 관리 필요 - 변수가 필요한 구간/인수가 필요한 구간/루프 최소화, 조건 확인 즉시 브레이크/삭제는 delete보다 undefined로
 
 let taskInput = document.getElementById("task-input");
-let enterCheck = document.querySelector('input[type="text"]')
+let enterCheck = document.querySelector("#task-input");
 let addBtn = document.getElementById("add-Btn");
 let tabs = document.querySelectorAll(".task-tabs div");
 let taskList = [];
 let mode = "all";
 let filterList = [];
 
+addBtn.disabled = true;
 addBtn.addEventListener("click", addTask);
-
+enterCheck.addEventListener("keydown", (event) => {
+  addBtn.disabled = false;
+  if (event.key == "Enter" && taskInput.value == "") {
+    addBtn.disabled = true;
+    return;
+  } else if (event.key == "Enter" && !taskInput.value == "") {
+    addTask();
+  }
+});
 
 for (let i = 1; i < tabs.length; i++) {
   tabs[i].addEventListener("click", function (event) {
@@ -36,6 +44,7 @@ for (let i = 1; i < tabs.length; i++) {
 }
 
 function addTask() {
+  console.log(taskInput.value);
   let task = {
     id: genRandomID(),
     taskContent: taskInput.value,
@@ -45,8 +54,8 @@ function addTask() {
   taskList.push(task);
   console.log("input:", taskList);
   viewTask();
-  let input = document.getElementById("task-input");
-  input.value = null;
+  taskInput.value = null;
+  addBtn.disabled = true;
 }
 
 function viewTask() {
@@ -55,15 +64,13 @@ function viewTask() {
   if (mode === "all") {
     list = taskList;
     console.log("mode", mode);
- // } else if (mode === "clear") {
- //   list = [];
   } else {
     list = filterList;
     console.log("list", list);
   }
   let resultHTML = "";
   for (let i = 0; i < list.length; i++) {
-    if (list[i].inTrash == true && mode != "trash" ) {
+    if (list[i].inTrash == true && mode != "trash") {
       resultHTML += `<div class="task-deleted"> </div>`;
       //continue;
     } else if (list[i].isComplete == true) {
@@ -71,7 +78,7 @@ function viewTask() {
          <div> ${list[i].taskContent} </div> 
          <div class="button-box"> 
          <button id="done-button" onclick="toggleComplete('${list[i].id}')"><img src="/img/complete.jpg" /></button> 
-         <button id="trash-box" onclick="toTrash('${list[i].id}')"><img src="/img/trash-delete.png" /></button> 
+         <button id="trash-box" onclick="toTrash('${list[i].id}')"><img src="/img/trashbox.png" /></button> 
          </div> 
          </div>`;
     } else if (list[i].isComplete == false) {
@@ -79,7 +86,7 @@ function viewTask() {
          <div> ${list[i].taskContent} </div> 
          <div class="button-box">  
          <button id="undone-button" onclick="toggleComplete('${list[i].id}')"><img src="/img/uncomplete.png" /></button> 
-         <button id="trash-box" onclick="toTrash('${list[i].id}')"><img src="/img/trash-delete.png" /></button> 
+         <button id="trash-box" onclick="toTrash('${list[i].id}')"><img src="/img/trashbox.png" /></button> 
          </div> 
          </div>`;
     }
@@ -116,7 +123,7 @@ function toTrash(id) {
   console.log(taskList);
 }
 
-function filter(event) {  
+function filter(event) {
   mode = event.target.id;
   filterList = [];
   console.log(mode);
@@ -149,14 +156,3 @@ function filter(event) {
   }
   viewTask();
 }
-
-function clearTaskArea() {
-  mode = "clear";
-  viewTask();
-}
-
-// function enterkey(event) {
-//  if (event.keycode == 13) {
-    // addTask();
-  // }
-// }
