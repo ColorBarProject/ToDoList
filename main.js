@@ -21,7 +21,9 @@ let taskInput = document.getElementById("task-input");
 let enterCheck = document.querySelector("#task-input");
 let addBtn = document.getElementById("add-Btn");
 let tabs = document.querySelectorAll(".task-tabs div");
+let underLine = document.getElementById("under-line");
 let taskList = [];
+let trashList = [];
 let mode = "all";
 let filterList = [];
 
@@ -53,32 +55,44 @@ function addTask() {
   };
   taskList.push(task);
   console.log("input:", taskList);
-  viewTask();
+  filter();
   taskInput.value = null;
   addBtn.disabled = true;
 }
 
 function viewTask() {
   let list = [];
-
+  let resultHTML = "";
+  let trashAct = "toTrash" ;
+  let trashIcon = "trashbox.png" ;
   if (mode === "all") {
     list = taskList;
     console.log("mode", mode);
   } else {
     list = filterList;
-    console.log("list", list);
+    console.log("list", list.length);  
+    if (list.length==0) {
+      taskAreaClear();
+      return;
+     }    
   }
-  let resultHTML = "";
+     
+  
   for (let i = 0; i < list.length; i++) {
-    if (list[i].inTrash == true && mode != "trash") {
-      resultHTML += `<div class="task-deleted"> </div>`;
-      //continue;
-    } else if (list[i].isComplete == true) {
+    if (mode=="trash") {
+      trashAct = "revivTrash";
+      trashIcon = "revive.jpg"
+    } else {
+      trashAct = "toTrash";
+      trashIcon = "trashbox.png";
+  }
+       
+    if (list[i].isComplete == true) {
       resultHTML += `<div class="task-done">
          <div> ${list[i].taskContent} </div> 
          <div class="button-box"> 
          <button id="done-button" onclick="toggleComplete('${list[i].id}')"><img src="/img/complete.jpg" /></button> 
-         <button id="trash-box" onclick="toTrash('${list[i].id}')"><img src="/img/trashbox.png" /></button> 
+         <button id="trash-box" onclick="${trashAct}('${list[i].id}')"><img src="/img/${trashIcon}" /></button> 
          </div> 
          </div>`;
     } else if (list[i].isComplete == false) {
@@ -86,7 +100,7 @@ function viewTask() {
          <div> ${list[i].taskContent} </div> 
          <div class="button-box">  
          <button id="undone-button" onclick="toggleComplete('${list[i].id}')"><img src="/img/uncomplete.png" /></button> 
-         <button id="trash-box" onclick="toTrash('${list[i].id}')"><img src="/img/trashbox.png" /></button> 
+         <button id="trash-box" onclick="${trashAct}('${list[i].id}')"><img src="/img/${trashIcon}" /></button> 
          </div> 
          </div>`;
     }
@@ -96,15 +110,15 @@ function viewTask() {
 }
 
 function toggleComplete(id) {
-  for (let i = 0; i < taskList.length; i++) {
-    // 이 부분 추후 find로 대체 후 성능 테스트
+  // 전체 태스크리스트 업데이트
+  for (let i = 0; i <= taskList.length; i++) {
+    // 이 부분 추후 find로 대체 후 성능 테스트 (할 수 있을까? ㅜㅜ)
     if (taskList[i].id == id) {
-      taskList[i].isComplete = !taskList[i].isComplete;
-      break;
+      taskList[i].isComplete = !taskList[i].isComplete;            
+      break;      
     }
-  }
-  viewTask();
-  console.log(taskList);
+  }  
+  filter();  
 }
 
 function genRandomID() {
@@ -112,21 +126,45 @@ function genRandomID() {
 }
 
 function toTrash(id) {
-  for (let i = 0; i < taskList.length; i++) {
-    // 이 부분 추후 find로 대체 후 성능 테스트
+  for (let i = 0; i < taskList.length; i++) {    
     if (taskList[i].id == id) {
       taskList[i].inTrash = !taskList[i].inTrash;
+      trashList.push(taskList[i]) ;   // 휴지통 누르면 휴지통리스트로 옮기고 태스크 리스트에서 제거
+      taskList.splice(i, 1);
+      filterList = filterList.filter(task => task.id !== id);
       break;
     }
   }
-  viewTask();
-  console.log(taskList);
+  filter();  
+}
+
+function revivTrash(id) {
+  for (let i = 0; i < trashList.length; i++) {    
+    if (trashList[i].id == id) {
+      trashList[i].inTrash = !trashList[i].inTrash;
+      taskList.push(trashList[i]) ;   // 휴지통 누르면 휴지통리스트로 옮기고 태스크 리스트에서 제거
+      trashList.splice(i, 1);
+      filterList = filterList.filter(task => task.id !== id);
+      break;
+    }
+  }
+  filter();  
 }
 
 function filter(event) {
-  mode = event.target.id;
-  filterList = [];
+  if (event) {
+    mode = event.target.id;  
+    underLine.style.width = event.target.offsetWidth + "px" ;
+    underLine.style.left = event.target.offsetLeft + "px" ;
+    underLine.style.top = event.target.offsetTop + (event.targetHeight - 4) + "px";
+  }
+  
   console.log(mode);
+  modeSorting();
+}
+
+function modeSorting() {
+  filterList = [];
   if (mode === "all") {
     filterList = taskList;
   } else if (mode === "ongoing") {
@@ -142,17 +180,21 @@ function filter(event) {
       }
     }
   } else if (mode === "trash") {
-    for (let i = 0; i < taskList.length; i++) {
-      if (taskList[i].inTrash === true) {
-        filterList.push(taskList[i]);
+    for (let i = 0; i < trashList.length; i++) {
+      if (trashList[i].inTrash === true) {
+        filterList.push(trashList[i]);
       }
     }
   } else if (mode === "search") {
-    for (let i = 0; i < taskList.length; i++) {
-      if (taskList[i].isComplete === false) {
-        filterList.push(taskList[i]);
-      }
-    }
+   // for (let i = 0; i < taskList.length; i++) {
+   //   if (taskList[i].isComplete === false) {
+        // filterList.push(taskList[i]);
+      // }
+    // }
   }
   viewTask();
+}
+
+function taskAreaClear () {
+  document.getElementById("task-board").innerHTML = "";
 }
